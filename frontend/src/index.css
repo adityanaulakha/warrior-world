@@ -447,6 +447,25 @@
   z-index: 10;
   pointer-events: auto;
 }
+.hero-bleed-blur {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: blur(28px);
+  transform: scale(1.14);
+  pointer-events: none;
+}
+.hero-bleed-art {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  object-position: center;
+}
 .bc-frame {
   display: block;
   width: 100%;

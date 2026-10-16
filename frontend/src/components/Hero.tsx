@@ -94,14 +94,13 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
 
   return (
     <section
-      className={`hero-stage bg-white text-white ${isPaused ? 'is-paused' : ''}`}
+      className={`hero-stage w-full bg-[#121212] text-white ${isPaused ? 'is-paused' : ''}`}
       aria-roledescription="carousel"
       aria-label="Featured campaigns"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <div className="bc-wrap py-3 md:py-6">
-        <div className="bg-[#121212]">
+      <div className="w-full">
           <div className="px-4 pb-1 pt-4 md:hidden">
             <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/65">Campaign</p>
             <p className="bc-display mt-1 text-[2rem] leading-[0.92] text-white">{active.title}</p>
@@ -130,7 +129,13 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
                   <img
                     src={banner.image}
                     alt=""
-                    className="h-full w-full object-contain object-center"
+                    aria-hidden="true"
+                    className="hero-bleed-blur"
+                  />
+                  <img
+                    src={banner.image}
+                    alt=""
+                    className="hero-bleed-art"
                     loading={index === 0 ? 'eager' : 'lazy'}
                     fetchPriority={index === 0 ? 'high' : 'auto'}
                   />
@@ -206,7 +211,6 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
               {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
             </button>
           </div>
-        </div>
       </div>
       <p className="sr-only" aria-live="polite">
         {active.title}
