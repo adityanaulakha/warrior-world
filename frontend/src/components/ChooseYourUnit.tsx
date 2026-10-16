@@ -36,7 +36,7 @@ export const ChooseYourUnit: React.FC<ChooseYourUnitProps> = ({ onSelectCollecti
       <span className="absolute inset-0 bg-black/30 transition-colors group-hover:bg-black/40" />
       <span className="relative z-10 flex h-full min-h-[inherit] flex-col items-center justify-center px-6 text-center text-white">
         <span className="mb-3 text-[12px] uppercase tracking-[0.28em]">{badge}</span>
-        <span className="text-[1.75rem] font-semibold leading-none md:text-[2.25rem]">{title}</span>
+        <span className="bc-display max-w-[14ch] text-[2.5rem] leading-[0.92] md:text-[3.4rem]">{title}</span>
         <span className="mt-3 max-w-sm text-sm leading-relaxed text-white/85">{tagline}</span>
         <span className="bc-btn bc-btn-light mt-6">Explore</span>
       </span>

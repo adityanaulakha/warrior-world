@@ -19,13 +19,15 @@ export const ArsenalCategories: React.FC<ArsenalCategoriesProps> = ({ onSelectCa
 
   return (
     <section id="arsenal-section" className="bg-white" aria-label="Shop by category">
-      <div className="grid grid-cols-1 md:grid-cols-2">
-        {featured.map((category) => (
+      <div className="grid grid-cols-1 bg-white md:grid-cols-2 md:bg-[#cf2929]">
+        {featured.map((category, index) => (
           <button
             key={category.name}
             type="button"
             onClick={() => onSelectCategory(category.name)}
-            className="group relative min-h-[420px] overflow-hidden bg-[#121212] text-left md:min-h-[560px]"
+            className={`group relative min-h-[420px] overflow-hidden bg-[#121212] text-left md:min-h-[560px] ${
+              index === 0 ? 'arsenal-cut-left' : 'arsenal-cut-right'
+            }`}
           >
             <img
               src={category.image}
@@ -38,7 +40,7 @@ export const ArsenalCategories: React.FC<ArsenalCategoriesProps> = ({ onSelectCa
               <span className="mb-3 text-[12px] font-medium uppercase tracking-[0.28em]">
                 {category.itemCount} styles
               </span>
-              <span className="text-[2rem] font-semibold leading-none md:text-[2.5rem]">
+              <span className="bc-display max-w-[12ch] text-[3rem] leading-[0.92] md:text-[4.6rem]">
                 {titleCase(category.name)}
               </span>
               <span className="bc-btn bc-btn-light mt-6">Shop now</span>

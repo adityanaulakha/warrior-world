@@ -3,6 +3,7 @@ import { Play } from 'lucide-react';
 import { BEST_SELLER_PRODUCTS } from '../data/mockData';
 import { Product } from '../types';
 import { SectionHeading } from './SectionHeading';
+import { CountUp, Reveal } from './motion';
 
 interface SharkTankSpotlightProps {
   onShopSharkApproved: () => void;
@@ -14,11 +15,18 @@ const PHOTOS = [
   { id: 'vineeta', label: 'Vineeta deal moment', src: '/banners/shark-tank-vineeta-deal.png' },
 ] as const;
 
-const STATS = [
-  { label: 'Investment', val: '₹75,00,000' },
-  { label: 'Valuation', val: '₹75 Crores' },
-  { label: 'Wash testing', val: '50+ washes' },
-  { label: 'Direct pricing', val: 'Flat ₹399' },
+const STATS: {
+  label: string;
+  count?: number;
+  prefix?: string;
+  suffix?: string;
+  indian?: boolean;
+  text?: string;
+}[] = [
+  { label: 'Investment', count: 7500000, prefix: '₹', indian: true },
+  { label: 'Valuation', count: 75, prefix: '₹', suffix: ' Crores' },
+  { label: 'Wash testing', count: 50, suffix: '+ washes' },
+  { label: 'Direct pricing', text: 'Flat ₹399' },
 ];
 
 export const SharkTankSpotlight: React.FC<SharkTankSpotlightProps> = ({
@@ -75,11 +83,23 @@ export const SharkTankSpotlight: React.FC<SharkTankSpotlightProps> = ({
           {STATS.map((stat) => (
             <div key={stat.label} className="border-[#E2E2E2] px-2 py-5 md:px-4 md:[&:not(:last-child)]:border-r">
               <dt className="text-[12px] uppercase tracking-[0.14em] text-[#484f56]">{stat.label}</dt>
-              <dd className="mt-1 text-xl font-semibold text-[#121212] md:text-2xl">{stat.val}</dd>
+              <dd className="mt-1 text-xl font-semibold text-[#121212] md:text-2xl">
+                {stat.count != null ? (
+                  <CountUp
+                    to={stat.count}
+                    prefix={stat.prefix}
+                    suffix={stat.suffix}
+                    indian={stat.indian}
+                  />
+                ) : (
+                  stat.text
+                )}
+              </dd>
             </div>
           ))}
         </dl>
 
+        <Reveal>
         <figure className="mx-auto max-w-[830px] px-2 py-12 text-center md:py-16">
           <blockquote className="text-[1.35rem] font-normal leading-[1.35] text-[#121212] md:text-[2.125rem]">
             “Warrior World connects authentic national pride with unbeatable product quality at ₹399. You've solved the hardest equation in Indian fashion: exceptional durability at honest pricing.”
@@ -88,6 +108,7 @@ export const SharkTankSpotlight: React.FC<SharkTankSpotlightProps> = ({
             — Vineeta Singh, Co-Founder and CEO, SUGAR Cosmetics · Shark Tank S5
           </figcaption>
         </figure>
+        </Reveal>
 
         <div className="grid grid-cols-2 gap-x-3 md:grid-cols-4 md:gap-x-5">
           {sharkTankPicks.map((product) => (

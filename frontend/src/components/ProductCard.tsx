@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Heart, Check } from 'lucide-react';
 import { Product } from '../types';
+import { MotionCard } from './motion';
 
 interface ProductCardProps {
   product: Product;
   isWishlisted: boolean;
   onToggleWishlist: (product: Product) => void;
   onQuickAdd: (product: Product, size: 'S' | 'M' | 'L' | 'XL' | 'XXL', color: string) => void;
+  delay?: number;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -14,6 +16,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   isWishlisted,
   onToggleWishlist,
   onQuickAdd,
+  delay = 0,
 }) => {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || 'Standard');
   const [addedSize, setAddedSize] = useState<string | null>(null);
@@ -32,7 +35,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <article className="group relative flex flex-col mb-5 md:mb-8">
+    <MotionCard data-product-card delay={delay} className="group relative mb-5 flex flex-col md:mb-8">
       <div className="relative mb-4 md:mb-[20px] bg-[#eeeeee] overflow-hidden">
         <div
           className="relative block w-full overflow-hidden pt-[125%]"
@@ -46,7 +49,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               key={`${product.id}-${index}`}
               src={src}
               alt={index === 0 ? product.name : ''}
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+              className={`pc-zoom absolute inset-0 h-full w-full object-cover ${
                 activeImage === index ? 'opacity-100' : 'opacity-0'
               }`}
               loading="lazy"
@@ -172,6 +175,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           ))}
         </div>
       </div>
-    </article>
+    </MotionCard>
   );
 };

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -119,6 +119,16 @@
   text-transform: uppercase;
   color: #484f56;
 }
+.bc-kicker::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 2px;
+  margin-right: 10px;
+  background: #cf2929;
+  transform: skewX(-28deg);
+  vertical-align: middle;
+}
 @media (min-width: 768px) {
   .bc-kicker {
     font-size: 13px;
@@ -129,14 +139,16 @@
 
 .bc-h2 {
   margin: 0;
-  font-size: 1.75rem;
-  line-height: 1.15;
-  font-weight: 600;
-  letter-spacing: 0;
+  font-family: "Bebas Neue", "Archivo Narrow", sans-serif;
+  font-size: 2.75rem;
+  line-height: 0.9;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   color: #121212;
 }
 @media (min-width: 768px) {
-  .bc-h2 { font-size: 2.5rem; line-height: 1.2; }
+  .bc-h2 { font-size: 4.15rem; }
 }
 
 .bc-lede {
@@ -251,7 +263,7 @@
 .bc-announce-track {
   display: flex;
   width: max-content;
-  animation: bc-marquee 50s linear infinite;
+  animation: bc-marquee 36s linear infinite;
 }
 .bc-announce:hover .bc-announce-track,
 .bc-announce:focus-within .bc-announce-track {
@@ -372,7 +384,7 @@
   right: 0;
   bottom: -6px;
   height: 1px;
-  background: #000000;
+  background: #cf2929;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.25s cubic-bezier(0.104, 0.204, 0.492, 1);
@@ -406,4 +418,98 @@
   .hero-stage .hero-arrow { opacity: 0; }
   .hero-stage:hover .hero-arrow,
   .hero-stage:focus-within .hero-arrow { opacity: 1; }
+}
+
+.bc-mark {
+  display: inline-block;
+  width: 12px;
+  height: 2px;
+  background: #cf2929;
+  transform: skewX(-28deg);
+  flex: none;
+}
+
+.bc-display {
+  font-family: "Bebas Neue", "Archivo Narrow", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 0.9;
+}
+
+.hero-slide {
+  opacity: 0;
+  transform: scale(1.045);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  pointer-events: none;
+}
+.hero-slide.is-active {
+  opacity: 1;
+  transform: none;
+  z-index: 10;
+  pointer-events: auto;
+}
+.hero-ken {
+  transform: scale(1.06);
+  animation: hero-ken 7s ease-out forwards;
+  transform-origin: center center;
+}
+@keyframes hero-ken {
+  from { transform: scale(1.06); }
+  to { transform: scale(1.14); }
+}
+.hero-grain {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+.hero-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 30;
+  height: 3px;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: #cf2929;
+  animation: hero-progress 5s linear forwards;
+}
+.hero-stage.is-paused .hero-progress,
+.hero-stage:hover .hero-progress {
+  animation-play-state: paused;
+}
+@keyframes hero-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.pc-zoom {
+  transform: scale(1);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.group:hover .pc-zoom,
+.group:focus-within .pc-zoom {
+  transform: scale(1.06);
+}
+
+@media (min-width: 768px) {
+  .arsenal-cut-left {
+    clip-path: polygon(0 0, 100% 0, calc(100% - 36px) 100%, 0 100%);
+  }
+  .arsenal-cut-right {
+    clip-path: polygon(36px 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+.site-header {
+  transition: box-shadow 0.3s ease;
+}
+.site-header.is-shrunk {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
 }

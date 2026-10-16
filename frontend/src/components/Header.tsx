@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Search, Heart, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { Magnetic } from './motion';
 
 interface HeaderProps {
   cartCount: number;
@@ -71,7 +73,16 @@ export const Header: React.FC<HeaderProps> = ({
   const [activeMega, setActiveMega] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const [shrunk, setShrunk] = useState(false);
+  const reduce = useReducedMotion();
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const onScroll = () => setShrunk(window.scrollY > 40);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
@@ -103,8 +114,8 @@ export const Header: React.FC<HeaderProps> = ({
   const iconBtn = 'relative inline-flex h-11 w-11 items-center justify-center text-[#121212] transition-opacity hover:opacity-60';
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-[#E2E2E2] bg-white">
-      <div className="mx-auto grid min-h-[60px] w-full max-w-[1440px] grid-cols-[auto_1fr_auto] items-center px-[15px] lg:min-h-[80px] lg:grid-cols-[1fr_auto_1fr] lg:px-[40px]">
+    <header className={`site-header sticky top-0 z-40 w-full border-b border-[#E2E2E2] bg-white ${shrunk ? 'is-shrunk' : ''}`}>
+      <div className={`mx-auto grid w-full max-w-[1440px] grid-cols-[auto_1fr_auto] items-center px-[15px] transition-[min-height] duration-300 lg:grid-cols-[1fr_auto_1fr] lg:px-[40px] ${shrunk ? 'min-h-[52px] lg:min-h-[58px]' : 'min-h-[60px] lg:min-h-[80px]'}`}>
         <div className="flex min-w-0 items-center justify-start">
           <button
             type="button"
@@ -158,7 +169,7 @@ export const Header: React.FC<HeaderProps> = ({
             <img
               src="/warrior-world-logo.png"
               alt="Warrior World"
-              className="h-8 w-auto max-w-[148px] object-contain sm:h-9 sm:max-w-[180px]"
+              className={`w-auto object-contain transition-[height,max-width] duration-300 ${shrunk ? 'h-7 max-w-[132px] sm:max-w-[150px]' : 'h-8 max-w-[148px] sm:h-9 sm:max-w-[180px]'}`}
               onError={() => setLogoError(true)}
             />
           ) : (
@@ -170,25 +181,53 @@ export const Header: React.FC<HeaderProps> = ({
           <button type="button" onClick={onOpenSearch} className={iconBtn} aria-label="Search">
             <Search className="h-[18px] w-[18px]" strokeWidth={1.6} />
           </button>
-          <button
-            type="button"
-            onClick={onOpenWishlist}
-            className={`${iconBtn} hidden sm:inline-flex`}
-            aria-label={`Wishlist, ${wishlistCount} items`}
-          >
-            <Heart className="h-[18px] w-[18px]" strokeWidth={1.6} />
-            {wishlistCount > 0 && (
-              <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#121212] px-1 text-[9px] font-semibold text-white">
-                {wishlistCount}
-              </span>
-            )}
-          </button>
-          <button type="button" onClick={onOpenCart} className={iconBtn} aria-label={`Bag, ${cartCount} items`}>
-            <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.6} />
-            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#121212] px-1 text-[9px] font-semibold text-white">
-              {cartCount}
-            </span>
-          </button>
+          <Magnetic className="hidden sm:inline-flex" strength={0.28}>
+            <button
+              type="button"
+              onClick={onOpenWishlist}
+              className={iconBtn}
+              aria-label={`Wishlist, ${wishlistCount} items`}
+            >
+              <motion.span
+                className="inline-flex"
+                whileHover={reduce ? undefined : { scale: 1.12, rotate: -8 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 16 }}
+              >
+                <Heart className="h-[18px] w-[18px]" strokeWidth={1.6} />
+              </motion.span>
+              {wishlistCount > 0 && (
+                <motion.span
+                  key={wishlistCount}
+                  className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#cf2929] px-1 text-[9px] font-semibold text-white"
+                  initial={reduce ? false : { scale: 0.4 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 520, damping: 16 }}
+                >
+                  {wishlistCount}
+                </motion.span>
+              )}
+            </button>
+          </Magnetic>
+          <Magnetic className="inline-flex" strength={0.28}>
+            <button type="button" onClick={onOpenCart} className={iconBtn} aria-label={`Bag, ${cartCount} items`}>
+              <motion.span
+                className="inline-flex"
+                whileHover={reduce ? undefined : { scale: 1.12, rotate: 8 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 16 }}
+              >
+                <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.6} />
+              </motion.span>
+              <motion.span
+                key={cartCount}
+                className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#cf2929] px-1 text-[9px] font-semibold text-white"
+                initial={reduce ? false : { scale: 0.4 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 520, damping: 16 }}
+              >
+                {cartCount}
+              </motion.span>
+            </button>
+          </Magnetic>
         </div>
       </div>
 

@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { Magnetic } from './motion';
 
 interface HeroProps {
   onShopNewArrivals: () => void;
@@ -44,7 +46,14 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const stageRef = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
   const total = HERO_BANNERS.length;
+  const { scrollYProgress } = useScroll({
+    target: stageRef,
+    offset: ['start start', 'end start'],
+  });
+  const parallaxY = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
 
   const nextSlide = () => setCurrent((prev) => (prev + 1) % total);
   const prevSlide = () => setCurrent((prev) => (prev - 1 + total) % total);
@@ -73,7 +82,8 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
 
   return (
     <section
-      className="hero-stage relative bg-[#121212] text-white"
+      ref={stageRef}
+      className={`hero-stage relative bg-[#121212] text-white ${isPaused ? 'is-paused' : ''}`}
       aria-roledescription="carousel"
       aria-label="Featured campaigns"
       onMouseEnter={() => setIsPaused(true)}
@@ -86,46 +96,55 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
       }}
     >
       <div className="relative aspect-[1024/437] w-full overflow-hidden">
-        {HERO_BANNERS.map((banner, index) => {
-          const isActive = index === current;
-          return (
-            <button
-              key={banner.id}
-              type="button"
-              className={`absolute inset-0 h-full w-full transition-opacity duration-700 ${
-                isActive ? 'z-10 opacity-100' : 'z-0 opacity-0'
-              }`}
-              onClick={() => openSlide(index)}
-              aria-label={banner.title}
-              tabIndex={isActive ? 0 : -1}
-            >
-              <img
-                src={banner.image}
-                alt=""
-                className="h-full w-full object-cover object-center"
-                loading={index === 0 ? 'eager' : 'lazy'}
-                fetchPriority={index === 0 ? 'high' : 'auto'}
-              />
-            </button>
-          );
-        })}
+        <motion.div
+          className="absolute inset-[-8%_0] will-change-transform"
+          style={reduce ? undefined : { y: parallaxY }}
+        >
+          {HERO_BANNERS.map((banner, index) => {
+            const isActive = index === current;
+            return (
+              <button
+                key={banner.id}
+                type="button"
+                className={`hero-slide absolute inset-0 h-full w-full ${isActive ? 'is-active' : ''}`}
+                onClick={() => openSlide(index)}
+                aria-label={banner.title}
+                tabIndex={isActive ? 0 : -1}
+              >
+                <img
+                  src={banner.image}
+                  alt=""
+                  className={`h-full w-full object-cover object-center ${isActive && !reduce ? 'hero-ken' : ''}`}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={index === 0 ? 'high' : 'auto'}
+                />
+              </button>
+            );
+          })}
+        </motion.div>
 
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); prevSlide(); }}
-          className="hero-arrow absolute left-3 top-1/2 z-20 -translate-y-1/2 md:left-10"
-          aria-label="Previous slide"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); nextSlide(); }}
-          className="hero-arrow absolute right-3 top-1/2 z-20 -translate-y-1/2 md:right-10"
-          aria-label="Next slide"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
+        <div className="hero-grain" aria-hidden="true" />
+
+        <Magnetic className="absolute left-3 top-1/2 z-20 -mt-[21px] md:left-10">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); prevSlide(); }}
+            className="hero-arrow"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+        </Magnetic>
+        <Magnetic className="absolute right-3 top-1/2 z-20 -mt-[21px] md:right-10">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); nextSlide(); }}
+            className="hero-arrow"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </Magnetic>
 
         <div className="absolute bottom-5 left-0 z-20 flex w-full items-center justify-center gap-3">
           {HERO_BANNERS.map((banner, index) => (
@@ -151,6 +170,8 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
         >
           {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
         </button>
+
+        {!reduce && <div key={current} className="hero-progress" aria-hidden="true" />}
       </div>
       <p className="sr-only" aria-live="polite">
         {HERO_BANNERS[current].title}

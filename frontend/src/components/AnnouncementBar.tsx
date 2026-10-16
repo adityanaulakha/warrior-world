@@ -22,7 +22,7 @@ export const AnnouncementBar: React.FC = () => {
             {items.map((item) => (
               <span key={`${copy}-${item.text}`} className="bc-announce-item">
                 {item.strong ? <strong>{item.text}</strong> : <span>{item.text}</span>}
-                <i aria-hidden="true">•</i>
+                <span className="bc-mark" aria-hidden="true" />
               </span>
             ))}
           </div>

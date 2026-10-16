@@ -31,9 +31,10 @@ export const FreshDeployment: React.FC<FreshDeploymentProps> = ({
           {FRESH_DEPLOYMENT_FEATURE.stats}
         </p>
         <div className="grid grid-cols-2 gap-x-3 md:grid-cols-4 md:gap-x-5">
-          {FRESH_DEPLOYMENT_PRODUCTS.map((product) => (
+          {FRESH_DEPLOYMENT_PRODUCTS.map((product, index) => (
             <ProductCard
               key={product.id}
+              delay={index * 0.06}
               product={product}
               isWishlisted={wishlistIds.has(product.id)}
               onToggleWishlist={onToggleWishlist}

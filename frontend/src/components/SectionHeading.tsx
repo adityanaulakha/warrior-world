@@ -1,4 +1,5 @@
 import React from 'react';
+import { RevealText } from './motion';
 
 interface SectionHeadingProps {
   eyebrow?: string;
@@ -23,7 +24,7 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
         {eyebrow && (
           <p className={`bc-kicker ${light ? 'text-white/70' : ''}`}>{eyebrow}</p>
         )}
-        <h2 className={`bc-h2 ${light ? 'text-white' : ''}`}>{title}</h2>
+        <RevealText text={title} className={`bc-h2 !leading-[0.95] ${light ? 'text-white' : ''}`} />
         {description && (
           <p className={`bc-lede ${light ? 'text-white/75' : ''}`}>{description}</p>
         )}

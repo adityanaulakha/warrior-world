@@ -1,10 +1,20 @@
 import React from 'react';
 import { Truck, RotateCcw, ShieldCheck, Award, ThumbsUp, Star } from 'lucide-react';
+import { CountUp, Reveal } from './motion';
 
-const PILLARS = [
+const PILLARS: {
+  icon: typeof ShieldCheck;
+  title: string;
+  desc: string;
+  count?: number;
+  suffix?: string;
+  indian?: boolean;
+}[] = [
   {
     icon: ShieldCheck,
-    title: '50+ wash tested',
+    title: 'wash tested',
+    count: 50,
+    suffix: '+',
     desc: 'High-density screen printing built for 50+ washes without cracking, peeling, or fading.',
   },
   {
@@ -29,7 +39,10 @@ const PILLARS = [
   },
   {
     icon: Star,
-    title: '5,00,000+ strong',
+    title: 'strong',
+    count: 500000,
+    indian: true,
+    suffix: '+',
     desc: 'A 4.8 rated community of army-inspired streetwear and defence supporters.',
   },
 ];
@@ -39,13 +52,23 @@ export const WhyWarriorWorld: React.FC = () => {
     <section className="border-t border-[#E2E2E2] bg-white py-8 md:py-10" aria-label="Why Warrior World">
       <div className="bc-wrap">
         <ul className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-3 xl:grid-cols-6">
-          {PILLARS.map((item) => {
+          {PILLARS.map((item, index) => {
             const Icon = item.icon;
             return (
               <li key={item.title} className="text-center">
-                <Icon className="mx-auto mb-4 h-10 w-10 text-[#121212]" strokeWidth={1.4} aria-hidden="true" />
-                <h3 className="mb-1 text-sm font-semibold uppercase tracking-[0.04em] text-[#121212]">{item.title}</h3>
-                <p className="text-[13px] leading-relaxed text-[#484f56]">{item.desc}</p>
+                <Reveal delay={index * 0.06}>
+                  <Icon className="mx-auto mb-4 h-10 w-10 text-[#121212]" strokeWidth={1.4} aria-hidden="true" />
+                  <h3 className="mb-1 text-sm font-semibold uppercase tracking-[0.04em] text-[#121212]">
+                    {item.count != null ? (
+                      <>
+                        <CountUp to={item.count} indian={item.indian} suffix={item.suffix} /> {item.title}
+                      </>
+                    ) : (
+                      item.title
+                    )}
+                  </h3>
+                  <p className="text-[13px] leading-relaxed text-[#484f56]">{item.desc}</p>
+                </Reveal>
               </li>
             );
           })}

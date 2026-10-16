@@ -78,9 +78,10 @@ export const BestSellers: React.FC<BestSellersProps> = ({
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-x-3 md:grid-cols-4 md:gap-x-5">
-            {visible.map((product) => (
+            {visible.map((product, index) => (
               <ProductCard
-                key={product.id}
+                key={`${activeTab}-${product.id}`}
+                delay={index * 0.05}
                 product={product}
                 isWishlisted={wishlistIds.has(product.id)}
                 onToggleWishlist={onToggleWishlist}

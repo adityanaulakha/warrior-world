@@ -1,5 +1,6 @@
 import React from 'react';
 import { SHARK_TANK_PRESS } from '../data/mockData';
+import { RevealText } from './motion';
 
 const PRESS_IMAGES = [
   '/banners/shark-tank-stage-wide.png',
@@ -18,7 +19,7 @@ export const BrandLogos: React.FC = () => {
         <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="bc-kicker">Latest</p>
-            <h2 className="bc-h2">In the press</h2>
+            <RevealText text="In the press" className="bc-h2 !leading-[0.95]" />
           </div>
           <button
             type="button"
