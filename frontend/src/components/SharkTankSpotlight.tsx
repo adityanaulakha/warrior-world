@@ -4,6 +4,7 @@ import { BEST_SELLER_PRODUCTS } from '../data/mockData';
 import { Product } from '../types';
 import { SectionHeading } from './SectionHeading';
 import { CountUp, Reveal } from './motion';
+import { FrameImage } from './FrameImage';
 
 interface SharkTankSpotlightProps {
   onShopSharkApproved: () => void;
@@ -48,11 +49,11 @@ export const SharkTankSpotlight: React.FC<SharkTankSpotlightProps> = ({
           onAction={onShopSharkApproved}
         />
 
-        <div className="overflow-hidden bg-[#121212]">
+        <div className="bg-[#121212]">
           <img
             src={photo.src}
             alt="Warrior World on Shark Tank India"
-            className="mx-auto h-auto max-h-[560px] w-full object-cover"
+            className="bc-frame"
           />
         </div>
 
@@ -114,7 +115,7 @@ export const SharkTankSpotlight: React.FC<SharkTankSpotlightProps> = ({
           {sharkTankPicks.map((product) => (
             <article key={product.id} className="mb-6">
               <div className="relative mb-4 overflow-hidden bg-[#eeeeee] pt-[125%]">
-                <img src={product.images[0]} alt={product.name} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+                <FrameImage src={product.images[0]} alt={product.name} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
                 <span className="bc-badge absolute left-2 top-2 md:left-4 md:top-4">Shark Tank</span>
               </div>
               <h3 className="text-[15px] font-medium uppercase leading-snug text-[#121212]">{product.name}</h3>

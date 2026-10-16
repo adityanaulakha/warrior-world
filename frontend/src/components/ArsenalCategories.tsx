@@ -18,25 +18,25 @@ export const ArsenalCategories: React.FC<ArsenalCategoriesProps> = ({ onSelectCa
   const rest = ARSENAL_CATEGORIES.filter((category) => !featuredNames.has(category.name)).slice(0, 4);
 
   return (
-    <section id="arsenal-section" className="bg-white" aria-label="Shop by category">
-      <div className="grid grid-cols-1 bg-white md:grid-cols-2 md:bg-[#cf2929]">
-        {featured.map((category, index) => (
+    <section id="arsenal-section" className="bc-section bg-white" aria-label="Shop by category">
+      <div className="bc-wrap">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-5">
+        {featured.map((category) => (
           <button
             key={category.name}
             type="button"
             onClick={() => onSelectCategory(category.name)}
-            className={`group relative min-h-[420px] overflow-hidden bg-[#121212] text-left md:min-h-[560px] ${
-              index === 0 ? 'arsenal-cut-left' : 'arsenal-cut-right'
-            }`}
+            className="group relative aspect-[4/5] overflow-hidden bg-[#121212] text-left"
           >
             <img
               src={category.image}
               alt=""
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
               loading="lazy"
+              onError={(event) => { event.currentTarget.style.display = 'none'; }}
             />
             <span className="absolute inset-0 bg-black/25 transition-colors group-hover:bg-black/35" />
-            <span className="relative z-10 flex h-full min-h-[420px] flex-col items-center justify-center px-6 text-center text-white md:min-h-[560px]">
+            <span className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center text-white">
               <span className="mb-3 text-[12px] font-medium uppercase tracking-[0.28em]">
                 {category.itemCount} styles
               </span>
@@ -49,7 +49,7 @@ export const ArsenalCategories: React.FC<ArsenalCategoriesProps> = ({ onSelectCa
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-[3px] bg-white pt-[3px] md:grid-cols-4">
+      <div className="mt-3 grid grid-cols-2 gap-3 md:mt-5 md:grid-cols-4 md:gap-5">
         {rest.map((category) => (
           <button
             key={category.name}
@@ -62,6 +62,7 @@ export const ArsenalCategories: React.FC<ArsenalCategoriesProps> = ({ onSelectCa
               alt=""
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
               loading="lazy"
+              onError={(event) => { event.currentTarget.style.display = 'none'; }}
             />
             <span className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
             <span className="absolute bottom-5 left-4 right-4 z-10 text-white">
@@ -70,6 +71,7 @@ export const ArsenalCategories: React.FC<ArsenalCategoriesProps> = ({ onSelectCa
             </span>
           </button>
         ))}
+      </div>
       </div>
     </section>
   );

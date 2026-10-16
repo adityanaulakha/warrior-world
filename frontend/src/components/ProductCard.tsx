@@ -21,6 +21,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || 'Standard');
   const [addedSize, setAddedSize] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [failed, setFailed] = useState<Record<number, boolean>>({});
+  const [altReady, setAltReady] = useState(false);
 
   const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
   const imgs = product.images;
@@ -44,17 +46,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           }}
           onMouseLeave={() => setActiveImage(0)}
         >
-          {imgs.map((src, index) => (
-            <img
-              key={`${product.id}-${index}`}
-              src={src}
-              alt={index === 0 ? product.name : ''}
-              className={`pc-zoom absolute inset-0 h-full w-full object-cover ${
-                activeImage === index ? 'opacity-100' : 'opacity-0'
-              }`}
-              loading="lazy"
-            />
-          ))}
+          {(() => {
+            const showSecond = imgs.length > 1 && altReady && !failed[1] && (activeImage === 1 || Boolean(failed[0]));
+            return imgs.map((src, index) => {
+              if (failed[index]) return null;
+              const visible = index === 0 ? !showSecond : showSecond && index === activeImage;
+              return (
+                <img
+                  key={`${product.id}-${index}`}
+                  src={src}
+                  alt={index === 0 ? product.name : ''}
+                  className={`pc-zoom absolute inset-0 h-full w-full object-cover ${
+                    visible ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  onLoad={() => {
+                    if (index > 0) setAltReady(true);
+                  }}
+                  onError={() => setFailed((prev) => ({ ...prev, [index]: true }))}
+                />
+              );
+            });
+          })()}
+          {failed[0] && !(imgs.length > 1 && altReady && !failed[1]) && (
+            <span className="absolute inset-0 flex items-center justify-center bg-[#eeeeee]">
+              <img src="/warrior-world-emblem.png" alt="" className="h-14 w-14 object-contain" />
+            </span>
+          )}
         </div>
 
         <div className="absolute top-2 left-2 md:top-4 md:left-4 z-10 flex flex-col items-start gap-1.5">

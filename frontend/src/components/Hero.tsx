@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { useReducedMotion } from 'framer-motion';
 import { Magnetic } from './motion';
 
 interface HeroProps {
@@ -46,14 +46,9 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
-  const stageRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   const total = HERO_BANNERS.length;
-  const { scrollYProgress } = useScroll({
-    target: stageRef,
-    offset: ['start start', 'end start'],
-  });
-  const parallaxY = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
+  const active = HERO_BANNERS[current];
 
   const nextSlide = () => setCurrent((prev) => (prev + 1) % total);
   const prevSlide = () => setCurrent((prev) => (prev - 1 + total) % total);
@@ -80,101 +75,141 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const dots = (
+    <div className="flex items-center justify-center gap-2.5">
+      {HERO_BANNERS.map((banner, index) => (
+        <button
+          key={banner.id}
+          type="button"
+          onClick={() => setCurrent(index)}
+          className={`h-2.5 w-2.5 rounded-full border border-white transition-colors ${
+            index === current ? 'bg-white' : 'bg-transparent'
+          }`}
+          aria-label={`Show ${banner.title}`}
+          aria-current={index === current}
+        />
+      ))}
+    </div>
+  );
+
   return (
     <section
-      ref={stageRef}
-      className={`hero-stage relative bg-[#121212] text-white ${isPaused ? 'is-paused' : ''}`}
+      className={`hero-stage bg-white text-white ${isPaused ? 'is-paused' : ''}`}
       aria-roledescription="carousel"
       aria-label="Featured campaigns"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      onTouchStart={(e) => { touchStartX.current = e.targetTouches[0].clientX; }}
-      onTouchMove={(e) => { touchEndX.current = e.targetTouches[0].clientX; }}
-      onTouchEnd={() => {
-        if (touchStartX.current - touchEndX.current > 50) nextSlide();
-        if (touchStartX.current - touchEndX.current < -50) prevSlide();
-      }}
     >
-      <div className="relative aspect-[1024/437] w-full overflow-hidden">
-        <motion.div
-          className="absolute inset-[-8%_0] will-change-transform"
-          style={reduce ? undefined : { y: parallaxY }}
-        >
-          {HERO_BANNERS.map((banner, index) => {
-            const isActive = index === current;
-            return (
+      <div className="bc-wrap py-3 md:py-6">
+        <div className="bg-[#121212]">
+          <div className="px-4 pb-1 pt-4 md:hidden">
+            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/65">Campaign</p>
+            <p className="bc-display mt-1 text-[2rem] leading-[0.92] text-white">{active.title}</p>
+          </div>
+
+          <div
+            className="relative aspect-[1024/437] w-full overflow-hidden"
+            onTouchStart={(e) => { touchStartX.current = e.targetTouches[0].clientX; }}
+            onTouchMove={(e) => { touchEndX.current = e.targetTouches[0].clientX; }}
+            onTouchEnd={() => {
+              if (touchStartX.current - touchEndX.current > 50) nextSlide();
+              if (touchStartX.current - touchEndX.current < -50) prevSlide();
+            }}
+          >
+            {HERO_BANNERS.map((banner, index) => {
+              const isActive = index === current;
+              return (
+                <button
+                  key={banner.id}
+                  type="button"
+                  className={`hero-slide absolute inset-0 h-full w-full ${isActive ? 'is-active' : ''}`}
+                  onClick={() => openSlide(index)}
+                  aria-label={banner.title}
+                  tabIndex={isActive ? 0 : -1}
+                >
+                  <img
+                    src={banner.image}
+                    alt=""
+                    className="h-full w-full object-contain object-center"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'high' : 'auto'}
+                  />
+                </button>
+              );
+            })}
+
+            <div className="hero-grain" aria-hidden="true" />
+
+            <Magnetic className="absolute left-4 top-1/2 z-20 -mt-[21px] hidden md:block">
               <button
-                key={banner.id}
                 type="button"
-                className={`hero-slide absolute inset-0 h-full w-full ${isActive ? 'is-active' : ''}`}
-                onClick={() => openSlide(index)}
-                aria-label={banner.title}
-                tabIndex={isActive ? 0 : -1}
+                onClick={(e) => { e.stopPropagation(); prevSlide(); }}
+                className="hero-arrow"
+                aria-label="Previous slide"
               >
-                <img
-                  src={banner.image}
-                  alt=""
-                  className={`h-full w-full object-cover object-center ${isActive && !reduce ? 'hero-ken' : ''}`}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={index === 0 ? 'high' : 'auto'}
-                />
+                <ChevronLeft className="h-5 w-5" />
               </button>
-            );
-          })}
-        </motion.div>
+            </Magnetic>
+            <Magnetic className="absolute right-4 top-1/2 z-20 -mt-[21px] hidden md:block">
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); nextSlide(); }}
+                className="hero-arrow"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </Magnetic>
 
-        <div className="hero-grain" aria-hidden="true" />
+            <div className="absolute bottom-4 left-0 z-20 hidden w-full md:flex md:justify-center">
+              {dots}
+            </div>
 
-        <Magnetic className="absolute left-3 top-1/2 z-20 -mt-[21px] md:left-10">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); prevSlide(); }}
-            className="hero-arrow"
-            aria-label="Previous slide"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-        </Magnetic>
-        <Magnetic className="absolute right-3 top-1/2 z-20 -mt-[21px] md:right-10">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); nextSlide(); }}
-            className="hero-arrow"
-            aria-label="Next slide"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </Magnetic>
-
-        <div className="absolute bottom-5 left-0 z-20 flex w-full items-center justify-center gap-3">
-          {HERO_BANNERS.map((banner, index) => (
             <button
-              key={banner.id}
               type="button"
-              onClick={() => setCurrent(index)}
-              className={`h-2.5 w-2.5 rounded-full border border-white transition-colors ${
-                index === current ? 'bg-white' : 'bg-transparent'
-              }`}
-              aria-label={`Show ${banner.title}`}
-              aria-current={index === current}
-            />
-          ))}
+              onClick={() => setIsPaused((paused) => !paused)}
+              className="hero-arrow absolute bottom-3 right-3 z-20 hidden h-9 w-9 md:inline-flex"
+              aria-label={isPaused ? 'Play slideshow' : 'Pause slideshow'}
+              aria-pressed={isPaused}
+            >
+              {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+            </button>
+
+            {!reduce && <div key={current} className="hero-progress" aria-hidden="true" />}
+          </div>
+
+          <div className="flex items-center justify-between gap-2 px-2 py-2 md:hidden">
+            <button
+              type="button"
+              onClick={prevSlide}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/50 text-white"
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            {dots}
+            <button
+              type="button"
+              onClick={nextSlide}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/50 text-white"
+              aria-label="Next slide"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsPaused((paused) => !paused)}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/50 text-white"
+              aria-label={isPaused ? 'Play slideshow' : 'Pause slideshow'}
+              aria-pressed={isPaused}
+            >
+              {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+            </button>
+          </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setIsPaused((paused) => !paused)}
-          className="hero-arrow absolute bottom-4 right-4 z-20 h-9 w-9"
-          aria-label={isPaused ? 'Play slideshow' : 'Pause slideshow'}
-          aria-pressed={isPaused}
-        >
-          {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
-        </button>
-
-        {!reduce && <div key={current} className="hero-progress" aria-hidden="true" />}
       </div>
       <p className="sr-only" aria-live="polite">
-        {HERO_BANNERS[current].title}
+        {active.title}
       </p>
     </section>
   );

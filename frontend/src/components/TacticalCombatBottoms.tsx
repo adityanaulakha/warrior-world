@@ -1,5 +1,6 @@
 import React from 'react';
 import { SectionHeading } from './SectionHeading';
+import { FrameImage } from './FrameImage';
 
 interface TacticalCombatBottomsProps {
   onExploreBottoms: (style: string) => void;
@@ -44,7 +45,7 @@ const BOTTOMS = [
     price: '₹1,199',
     originalPrice: '₹2,399',
     spec: 'Bar-Tacked Stress Points',
-    img: 'https://images.unsplash.com/photo-1506634572416-48cdfe7de167?auto=format&fit=crop&w=800&q=80',
+    img: 'https://warriorworld.in/cdn/shop/files/resized_770x1024_sagegreen.jpg?v=1782822191&width=800',
   },
   {
     name: 'Water-Repellent Commando Jogger',
@@ -52,7 +53,7 @@ const BOTTOMS = [
     price: '₹1,099',
     originalPrice: '₹2,099',
     spec: 'Quick-Dry Tech Weave',
-    img: 'https://images.unsplash.com/photo-1542272604-780c96856592?auto=format&fit=crop&w=800&q=80',
+    img: 'https://warriorworld.in/cdn/shop/files/f-M_1_._f0428482-235d-4ae5-a371-248b8ef379a2.jpg?v=1782822288&width=800',
   },
 ];
 
@@ -77,7 +78,7 @@ export const TacticalCombatBottoms: React.FC<TacticalCombatBottomsProps> = ({ on
               className="group mb-6 text-left md:mb-8"
             >
               <span className="relative mb-4 block overflow-hidden bg-[#eeeeee] pt-[125%]">
-                <img
+                <FrameImage
                   src={item.img}
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"

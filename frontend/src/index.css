@@ -439,24 +439,21 @@
 
 .hero-slide {
   opacity: 0;
-  transform: scale(1.045);
-  transition: opacity 0.8s ease, transform 0.8s ease;
+  transition: opacity 0.6s ease;
   pointer-events: none;
 }
 .hero-slide.is-active {
   opacity: 1;
-  transform: none;
   z-index: 10;
   pointer-events: auto;
 }
-.hero-ken {
-  transform: scale(1.06);
-  animation: hero-ken 7s ease-out forwards;
-  transform-origin: center center;
-}
-@keyframes hero-ken {
-  from { transform: scale(1.06); }
-  to { transform: scale(1.14); }
+.bc-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1024 / 437;
+  object-fit: contain;
+  object-position: center;
+  background: #121212;
 }
 .hero-grain {
   pointer-events: none;
@@ -496,15 +493,6 @@
 .group:hover .pc-zoom,
 .group:focus-within .pc-zoom {
   transform: scale(1.06);
-}
-
-@media (min-width: 768px) {
-  .arsenal-cut-left {
-    clip-path: polygon(0 0, 100% 0, calc(100% - 36px) 100%, 0 100%);
-  }
-  .arsenal-cut-right {
-    clip-path: polygon(36px 0, 100% 0, 100% 100%, 0 100%);
-  }
 }
 
 .site-header {

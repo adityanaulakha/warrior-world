@@ -30,7 +30,7 @@ export const BrandLogos: React.FC = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-5">
           {stories.map((story, index) => (
             <article key={story.headline}>
               <button
@@ -38,7 +38,7 @@ export const BrandLogos: React.FC = () => {
                 className="block w-full overflow-hidden bg-[#121212] text-left"
                 onClick={() => document.getElementById('shark-tank')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                <img src={PRESS_IMAGES[index]} alt="" className="aspect-[16/10] w-full object-cover" loading="lazy" />
+                <img src={PRESS_IMAGES[index]} alt="" className="bc-frame" loading="lazy" />
               </button>
               <p className="mt-4 text-[11px] uppercase tracking-[0.16em] text-[#9a9a9a]">{story.date}</p>
               <h3 className="mt-2 text-[1.25rem] font-semibold leading-snug text-[#121212]">{story.headline}</h3>

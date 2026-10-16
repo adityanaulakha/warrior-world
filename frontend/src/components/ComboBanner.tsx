@@ -49,20 +49,19 @@ export const ComboBanner: React.FC<ComboBannerProps> = ({ onBuildCombo }) => {
           action="Build a 3-pack"
           onAction={() => onBuildCombo(3)}
         />
+        <button
+          type="button"
+          onClick={() => onBuildCombo(3)}
+          className="block w-full bg-[#121212]"
+          aria-label="Mega combo deals, pick any 3 at ₹999"
+        >
+          <img
+            src="/banners/combos-pick-any-3.png"
+            alt="Warrior World combo deals, pick any 3 at ₹999"
+            className="bc-frame"
+          />
+        </button>
       </div>
-
-      <button
-        type="button"
-        onClick={() => onBuildCombo(3)}
-        className="block w-full overflow-hidden bg-[#121212]"
-        aria-label="Mega combo deals, pick any 3 at ₹999"
-      >
-        <img
-          src="/banners/combos-pick-any-3.png"
-          alt="Warrior World combo deals, pick any 3 at ₹999"
-          className="mx-auto h-auto max-h-[520px] w-full object-cover object-center"
-        />
-      </button>
 
       <div className="bc-wrap pt-8">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
