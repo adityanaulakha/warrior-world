@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
 import { ProductCard } from './ProductCard';
+import { SectionHeading } from './SectionHeading';
 import { Product } from '../types';
 import { BEST_SELLER_PRODUCTS } from '../data/mockData';
 
@@ -18,6 +18,7 @@ export const BestSellers: React.FC<BestSellersProps> = ({
   onQuickAdd,
 }) => {
   const [activeTab, setActiveTab] = useState('All Items');
+  const [showAll, setShowAll] = useState(false);
 
   const filtered =
     activeTab === 'All Items'
@@ -28,39 +29,34 @@ export const BestSellers: React.FC<BestSellersProps> = ({
       ? BEST_SELLER_PRODUCTS.filter((p) => p.category === 'Winter')
       : BEST_SELLER_PRODUCTS.filter((p) => p.category === activeTab);
 
+  const visible = showAll ? filtered : filtered.slice(0, 8);
+
   return (
-    <section id="best-sellers-section" className="py-16 sm:py-24 bg-white border-b border-neutral-200/70">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 pb-6 border-b border-neutral-200">
-          <div>
-            <span className="editorial-eyebrow text-[#C5A059] block mb-2">
-              Field-Tested Provenance
-            </span>
-            <h2 className="editorial-title text-4xl sm:text-5xl lg:text-6xl text-black">
-              Most Wanted Drops
-            </h2>
-          </div>
+    <section id="best-sellers-section" className="bc-section bg-white">
+      <div className="bc-wrap">
+        <SectionHeading
+          eyebrow="Field-tested provenance"
+          title="Most wanted"
+          description="180 GSM bio-washed combed cotton, flat ₹399, and the prints that made the Shark Tank pitch."
+          action={showAll ? 'Show less' : 'Shop all'}
+          onAction={() => setShowAll((open) => !open)}
+        />
 
-          <button className="hidden sm:flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-900 hover:text-[#C5A059] transition-colors group">
-            <span>Explore All 120+ Products</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-
-        {/* Minimalist Editorial Tabs */}
-        <div className="flex items-center gap-2 mb-10 overflow-x-auto no-scrollbar border-b border-neutral-200 pb-3">
+        <div className="mb-6 flex gap-5 overflow-x-auto no-scrollbar border-b border-[#E2E2E2]" role="tablist" aria-label="Filter most wanted">
           {TABS.map((tab) => {
             const isActive = activeTab === tab;
             return (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`flex-shrink-0 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-                  isActive
-                    ? 'bg-black text-white shadow-xs'
-                    : 'text-neutral-500 hover:text-black hover:bg-neutral-100'
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setShowAll(false);
+                }}
+                className={`shrink-0 border-b-2 pb-3 text-[15px] transition-colors ${
+                  isActive ? 'border-[#121212] font-medium text-[#121212]' : 'border-transparent text-[#484f56] hover:text-[#121212]'
                 }`}
               >
                 {tab}
@@ -69,25 +65,30 @@ export const BestSellers: React.FC<BestSellersProps> = ({
           })}
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
-          {filtered.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              isWishlisted={wishlistIds.has(product.id)}
-              onToggleWishlist={onToggleWishlist}
-              onQuickAdd={onQuickAdd}
-            />
-          ))}
-        </div>
-
-        {/* Mobile View All */}
-        <div className="mt-10 sm:hidden text-center">
-          <button className="w-full py-4 bg-black text-white text-xs font-bold uppercase tracking-wider">
-            Explore All 120+ Products
-          </button>
-        </div>
+        {visible.length === 0 ? (
+          <div className="py-10 text-center">
+            <p className="text-[15px] text-[#484f56]">Combat bottoms are in the fieldwear edit.</p>
+            <button
+              type="button"
+              className="bc-text-link mt-4"
+              onClick={() => document.getElementById('tactical-bottoms')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              Shop tactical bottoms
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-x-3 md:grid-cols-4 md:gap-x-5">
+            {visible.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                isWishlisted={wishlistIds.has(product.id)}
+                onToggleWishlist={onToggleWishlist}
+                onQuickAdd={onQuickAdd}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

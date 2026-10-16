@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AnnouncementBar } from './components/AnnouncementBar';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -20,7 +20,7 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 
 import { Product, CartItem } from './types';
 import { BEST_SELLER_PRODUCTS, FRESH_DEPLOYMENT_PRODUCTS } from './data/mockData';
-import { Check, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export function App() {
   // Local interactive state
@@ -181,9 +181,10 @@ export function App() {
   ].filter((p) => wishlistIds.has(p.id));
 
   return (
-    <div className="min-h-screen bg-white text-neutral-900 flex flex-col font-sans selection:bg-neutral-900 selection:text-white">
-      
-      {/* 1. TOP ANNOUNCEMENT BAR */}
+    <div className="flex min-h-screen flex-col bg-white font-sans text-[#484f56] selection:bg-[#121212] selection:text-white">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[80] focus:bg-white focus:px-3 focus:py-2">
+        Skip to content
+      </a>
       <AnnouncementBar />
 
       {/* 2. STICKY CONDENSING HEADER */}
@@ -194,9 +195,16 @@ export function App() {
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
         onSelectCategory={(category) => {
-          if (category === 'Bottoms' || category === 'Cargo Pants' || category === 'Combat Bottoms') {
+          const label = category.toLowerCase();
+          if (
+            label.includes('bottom') ||
+            label.includes('cargo') ||
+            label.includes('jogger') ||
+            label.includes('chino') ||
+            label.includes('short')
+          ) {
             scrollToSection('tactical-bottoms');
-          } else if (category === 'Military') {
+          } else if (category === 'Military' || label.includes('regiment') || label.includes('army') || label.includes('navy') || label.includes('garud') || label.includes('air force') || label.includes('patriotic') || label.includes('frontier')) {
             scrollToSection('collections-bento');
           } else if (category === 'Shark Tank Special' || category.includes('Shark Tank')) {
             scrollToSection('shark-tank');
@@ -210,60 +218,33 @@ export function App() {
         }}
       />
 
-      {/* 3. HERO (Full viewport, 5 slides, stats chips) */}
+      <main id="main">
       <Hero
         onShopNewArrivals={() => scrollToSection('fresh-deployment')}
         onShopCombos={() => scrollToSection('combos-section')}
       />
 
-      {/* 4. AS SEEN ON SHARK TANK INDIA S5 — OFFICIAL EDITORIAL SPREAD */}
-      <SharkTankSpotlight
-        onShopSharkApproved={() => {
-          scrollToSection('best-sellers-section');
-          showToast('Showing Shark Tank S5 Range');
-        }}
-        onQuickAdd={handleQuickAdd}
-      />
-
-      {/* 5. SHOP BY CATEGORY — "THE ARSENAL" */}
       <ArsenalCategories
         onSelectCategory={(name) => {
           showToast(`Filtered category: ${name}`);
-          if (name === 'Cargo Pants' || name === 'Bottoms' || name === 'Tactical Bottoms') {
+          if (name === 'Cargo Pants' || name === 'Bottoms' || name === 'Tactical Bottoms' || name === 'BOTTOM WEAR') {
             scrollToSection('tactical-bottoms');
+          } else if (name === 'PICK ANY COMBO') {
+            scrollToSection('combos-section');
           } else {
             scrollToSection('best-sellers-section');
           }
         }}
       />
 
-      {/* 6. COMBO DEAL BANNER — "BUY MORE, SAVE MORE (3 @ ₹999)" */}
-      <ComboBanner onBuildCombo={handleBuildCombo} />
-
-      {/* 7. BEST SELLERS — "MOST WANTED DROPS" */}
       <BestSellers
         wishlistIds={wishlistIds}
         onToggleWishlist={handleToggleWishlist}
         onQuickAdd={handleQuickAdd}
       />
 
-      {/* 8. SHOP BY COLLECTION — "CHOOSE YOUR UNIT" */}
-      <ChooseYourUnit
-        onSelectCollection={(title) => {
-          showToast(`Inspecting collection: ${title}`);
-          scrollToSection('best-sellers-section');
-        }}
-      />
+      <ComboBanner onBuildCombo={handleBuildCombo} />
 
-      {/* 9. TACTICAL COMBAT BOTTOMS CAPSULE */}
-      <TacticalCombatBottoms
-        onExploreBottoms={(style) => {
-          showToast(`Selected ${style} Combat Pants!`);
-          scrollToSection('best-sellers-section');
-        }}
-      />
-
-      {/* 10. NEW IN / LATEST COLLECTION — "FRESH DEPLOYMENT" */}
       <FreshDeployment
         wishlistIds={wishlistIds}
         onToggleWishlist={handleToggleWishlist}
@@ -274,17 +255,36 @@ export function App() {
         }}
       />
 
-      {/* 11. WHY WARRIORWORLD — "THE STANDARD" */}
-      <WhyWarriorWorld />
+      <ChooseYourUnit
+        onSelectCollection={(title) => {
+          showToast(`Inspecting collection: ${title}`);
+          scrollToSection('best-sellers-section');
+        }}
+      />
 
-      {/* 13. TRUSTED BY / BRAND LOGOS */}
+      <TacticalCombatBottoms
+        onExploreBottoms={(style) => {
+          showToast(`Selected ${style} Combat Pants!`);
+          scrollToSection('best-sellers-section');
+        }}
+      />
+
+      <SharkTankSpotlight
+        onShopSharkApproved={() => {
+          scrollToSection('best-sellers-section');
+          showToast('Showing Shark Tank S5 Range');
+        }}
+        onQuickAdd={handleQuickAdd}
+      />
+
       <BrandLogos />
 
-      {/* 14. APP DOWNLOAD STRIP */}
+      <WhyWarriorWorld />
+
       <AppDownloadStrip />
 
-      {/* 16. FOOTER */}
       <Footer onOpenSearch={() => setIsSearchOpen(true)} />
+      </main>
 
       {/* FLOATING WHATSAPP BUTTON (Bottom Right) */}
       <FloatingWhatsApp />
@@ -320,7 +320,7 @@ export function App() {
 
       {/* TOAST NOTIFICATION BADGE */}
       {toastMessage && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 bg-neutral-900 text-white rounded-full shadow-2xl flex items-center gap-2 text-xs font-medium animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="fixed bottom-24 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-[10px] bg-[#121212] px-4 py-2.5 text-sm text-white shadow-2xl" role="status">
           <Sparkles className="w-3.5 h-3.5 text-white" />
           <span>{toastMessage}</span>
         </div>

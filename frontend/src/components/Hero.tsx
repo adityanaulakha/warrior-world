@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Award, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 
 interface HeroProps {
   onShopNewArrivals: () => void;
@@ -44,7 +44,6 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
-
   const total = HERO_BANNERS.length;
 
   const nextSlide = () => setCurrent((prev) => (prev + 1) % total);
@@ -52,25 +51,31 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
 
   useEffect(() => {
     if (isPaused) return;
-    const timer = setInterval(nextSlide, 5000);
-    return () => clearInterval(timer);
-  }, [current, isPaused]);
+    const timer = window.setInterval(() => {
+      setCurrent((prev) => (prev + 1) % total);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [isPaused, total]);
 
-  const handleBannerClick = (index: number) => {
+  const openSlide = (index: number) => {
     const banner = HERO_BANNERS[index];
     if (banner.id === 'combos') {
       onShopCombos();
-    } else if (banner.id === 'new-arrivals') {
-      onShopNewArrivals();
-    } else {
-      const el = document.getElementById(banner.link.replace('#', ''));
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      return;
     }
+    if (banner.id === 'new-arrivals') {
+      onShopNewArrivals();
+      return;
+    }
+    const el = document.getElementById(banner.link.replace('#', ''));
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <section
-      className="relative bg-black text-white overflow-hidden select-none"
+      className="hero-stage relative bg-[#121212] text-white"
+      aria-roledescription="carousel"
+      aria-label="Featured campaigns"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={(e) => { touchStartX.current = e.targetTouches[0].clientX; }}
@@ -80,94 +85,76 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
         if (touchStartX.current - touchEndX.current < -50) prevSlide();
       }}
     >
-      {/* Banner Viewport — Aspect Ratio Matches 1024x437 Image Ratio */}
-      <div className="relative w-full aspect-[1024/437] max-h-[680px] min-h-[220px] sm:min-h-[340px] overflow-hidden bg-black">
+      <div className="relative aspect-[1024/437] w-full overflow-hidden">
         {HERO_BANNERS.map((banner, index) => {
           const isActive = index === current;
           return (
-            <div
+            <button
               key={banner.id}
-              className={`absolute inset-0 transition-opacity duration-700 ease-in-out cursor-pointer ${
-                isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+              type="button"
+              className={`absolute inset-0 h-full w-full transition-opacity duration-700 ${
+                isActive ? 'z-10 opacity-100' : 'z-0 opacity-0'
               }`}
-              onClick={() => handleBannerClick(index)}
+              onClick={() => openSlide(index)}
+              aria-label={banner.title}
+              tabIndex={isActive ? 0 : -1}
             >
-              {/* Clean, Full-Color Artwork Banner with Zero Obstructing Text or Buttons */}
               <img
                 src={banner.image}
-                alt={banner.title}
-                className="w-full h-full object-cover object-center"
+                alt=""
+                className="h-full w-full object-cover object-center"
                 loading={index === 0 ? 'eager' : 'lazy'}
+                fetchPriority={index === 0 ? 'high' : 'auto'}
               />
-            </div>
+            </button>
           );
         })}
 
-        {/* Carousel Navigation Arrows */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            prevSlide();
-          }}
-          className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-11 sm:h-11 bg-black/50 hover:bg-black/90 text-white border border-white/20 flex items-center justify-center backdrop-blur-xs transition-colors"
+          type="button"
+          onClick={(e) => { e.stopPropagation(); prevSlide(); }}
+          className="hero-arrow absolute left-3 top-1/2 z-20 -translate-y-1/2 md:left-10"
           aria-label="Previous slide"
         >
-          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+          <ChevronLeft className="h-5 w-5" />
         </button>
-
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            nextSlide();
-          }}
-          className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-11 sm:h-11 bg-black/50 hover:bg-black/90 text-white border border-white/20 flex items-center justify-center backdrop-blur-xs transition-colors"
+          type="button"
+          onClick={(e) => { e.stopPropagation(); nextSlide(); }}
+          className="hero-arrow absolute right-3 top-1/2 z-20 -translate-y-1/2 md:right-10"
           aria-label="Next slide"
         >
-          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          <ChevronRight className="h-5 w-5" />
         </button>
 
-        {/* Minimal Bar Indicators */}
-        <div className="absolute bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-black/50 backdrop-blur-xs px-3 py-1.5 border border-white/10 rounded-full">
-          {HERO_BANNERS.map((_, i) => (
+        <div className="absolute bottom-5 left-0 z-20 flex w-full items-center justify-center gap-3">
+          {HERO_BANNERS.map((banner, index) => (
             <button
-              key={i}
-              onClick={(e) => {
-                e.stopPropagation();
-                setCurrent(i);
-              }}
-              className={`h-1.5 transition-all duration-300 rounded-full ${
-                i === current ? 'w-6 bg-[#C5A059]' : 'w-2 bg-white/40 hover:bg-white/70'
+              key={banner.id}
+              type="button"
+              onClick={() => setCurrent(index)}
+              className={`h-2.5 w-2.5 rounded-full border border-white transition-colors ${
+                index === current ? 'bg-white' : 'bg-transparent'
               }`}
-              aria-label={`Go to slide ${i + 1}`}
+              aria-label={`Show ${banner.title}`}
+              aria-current={index === current}
             />
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setIsPaused((paused) => !paused)}
+          className="hero-arrow absolute bottom-4 right-4 z-20 h-9 w-9"
+          aria-label={isPaused ? 'Play slideshow' : 'Pause slideshow'}
+          aria-pressed={isPaused}
+        >
+          {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+        </button>
       </div>
-
-      {/* Trust & Proof Bar below slides */}
-      <div className="bg-neutral-950 border-y border-neutral-900 py-3.5 px-4 sm:px-6">
-        <div className="max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-neutral-400">
-          <div className="flex items-center gap-2">
-            <Award className="w-4 h-4 text-[#C5A059]" />
-            <span className="uppercase tracking-wider text-neutral-300">Shark Tank India Season 5 Winner</span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#C5A059]" />
-            <span className="uppercase tracking-wider">50+ Industrial Washes Tested</span>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-2">
-            <Truck className="w-4 h-4 text-[#C5A059]" />
-            <span className="uppercase tracking-wider">Free Cash on Delivery Across India</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <RotateCcw className="w-4 h-4 text-[#C5A059]" />
-            <span className="uppercase tracking-wider">7-Day Free Doorstep Exchanges</span>
-          </div>
-        </div>
-      </div>
+      <p className="sr-only" aria-live="polite">
+        {HERO_BANNERS[current].title}
+      </p>
     </section>
   );
 };

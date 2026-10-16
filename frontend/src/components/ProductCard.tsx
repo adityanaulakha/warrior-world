@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Star, Check } from 'lucide-react';
+import { Heart, Check } from 'lucide-react';
 import { Product } from '../types';
 
 interface ProductCardProps {
@@ -15,172 +15,163 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onToggleWishlist,
   onQuickAdd,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || 'Standard');
   const [addedSize, setAddedSize] = useState<string | null>(null);
+  const [activeImage, setActiveImage] = useState(0);
 
   const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
   const imgs = product.images;
-  const primaryImg = imgs[0];
-  const secondaryImg = imgs.length > 1 ? imgs[1] : imgs[0];
+  const starPercent = Math.max(0, Math.min(100, (product.rating / 5) * 100));
 
   const handleSelectSize = (size: 'S' | 'M' | 'L' | 'XL' | 'XXL', e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     onQuickAdd(product, size, selectedColor);
     setAddedSize(size);
-    setTimeout(() => setAddedSize(null), 1500);
+    window.setTimeout(() => setAddedSize(null), 1400);
   };
 
   return (
-    <div
-      className="group relative flex flex-col bg-[#FAFAF8] overflow-hidden cursor-pointer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Image Container */}
-      <div className="relative aspect-[3/4] bg-[#F0EDE6] overflow-hidden select-none">
-        {/* Primary Image */}
-        <img
-          src={primaryImg}
-          alt={product.name}
-          className={`absolute inset-0 w-full h-full object-cover transition-all duration-600 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            isHovered && imgs.length > 1 ? 'opacity-0 scale-[1.02]' : 'opacity-100 scale-100'
-          }`}
-          loading="lazy"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${product.id}/400/533`;
+    <article className="group relative flex flex-col mb-5 md:mb-8">
+      <div className="relative mb-4 md:mb-[20px] bg-[#eeeeee] overflow-hidden">
+        <div
+          className="relative block w-full overflow-hidden pt-[125%]"
+          onMouseEnter={() => {
+            if (imgs.length > 1) setActiveImage(1);
           }}
-        />
+          onMouseLeave={() => setActiveImage(0)}
+        >
+          {imgs.map((src, index) => (
+            <img
+              key={`${product.id}-${index}`}
+              src={src}
+              alt={index === 0 ? product.name : ''}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+                activeImage === index ? 'opacity-100' : 'opacity-0'
+              }`}
+              loading="lazy"
+            />
+          ))}
+        </div>
 
-        {/* Secondary Hover Image */}
-        {imgs.length > 1 && (
-          <img
-            src={secondaryImg}
-            alt={`${product.name} alternate`}
-            className={`absolute inset-0 w-full h-full object-cover transition-all duration-600 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              isHovered ? 'opacity-100 scale-[1.02]' : 'opacity-0 scale-100'
-            }`}
-            loading="lazy"
-          />
-        )}
-
-        {/* Top-left Badges */}
-        <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1 items-start">
-          {product.isSharkTank && (
-            <span className="px-2 py-[2px] bg-[#D4A843] text-[#050505] text-[9px] font-bold uppercase tracking-[0.08em]">
-              Shark Tank S5
-            </span>
-          )}
-
-          {product.isBestSeller && !product.isSharkTank && (
-            <span className="px-2 py-[2px] bg-[#050505] text-[#FAFAF8] text-[9px] font-semibold uppercase tracking-[0.06em]">
-              Bestseller
-            </span>
-          )}
-
-          {discount > 0 && (
-            <span className="px-1.5 py-[2px] bg-[#050505]/70 backdrop-blur-sm text-[#C4B08C] text-[9px] font-semibold">
-              {discount}% Off
-            </span>
+        <div className="absolute top-2 left-2 md:top-4 md:left-4 z-10 flex flex-col items-start gap-1.5">
+          {discount > 0 && <span className="bc-badge">Save {discount}%</span>}
+          {product.isNew && <span className="bc-badge bc-badge-ink">New</span>}
+          {product.isSharkTank && !product.isNew && (
+            <span className="bc-badge bc-badge-ink">Shark Tank</span>
           )}
         </div>
 
-        {/* Wishlist Button */}
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             onToggleWishlist(product);
           }}
-          className={`absolute top-2.5 right-2.5 z-10 w-8 h-8 flex items-center justify-center transition-all duration-200 ${
-            isWishlisted
-              ? 'bg-[#050505] text-white'
-              : 'bg-white/80 backdrop-blur-sm text-[#6B6B64] hover:text-[#050505] hover:bg-white'
+          className={`absolute top-2 right-2 md:top-4 md:right-4 z-10 flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors ${
+            isWishlisted ? 'bg-[#121212] text-white' : 'bg-white/90 text-[#121212] hover:bg-white'
           }`}
-          aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+          aria-pressed={isWishlisted}
         >
-          <Heart className={`w-[14px] h-[14px] ${isWishlisted ? 'fill-current' : ''}`} strokeWidth={1.5} />
+          <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} strokeWidth={1.6} />
         </button>
 
-        {/* Quick-Add Size Tray */}
-        <div className="absolute inset-x-0 bottom-0 z-20 p-2.5 bg-gradient-to-t from-[#050505]/80 via-[#050505]/50 to-transparent translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]">
-          <div className="text-[9px] font-semibold text-white/70 uppercase tracking-[0.12em] mb-1.5 text-center">
-            Quick Add
-          </div>
-          <div className="flex items-center justify-center gap-1">
-            {product.sizes.map((size) => (
-              <button
-                key={size}
-                onClick={(e) => handleSelectSize(size as 'S' | 'M' | 'L' | 'XL' | 'XXL', e)}
-                className={`flex-1 py-1.5 text-[10px] font-semibold uppercase transition-all ${
-                  addedSize === size
-                    ? 'bg-[#4A5535] text-white'
-                    : 'bg-white/90 hover:bg-[#D4A843] text-[#050505] active:scale-95'
-                }`}
-              >
-                {addedSize === size ? <Check className="w-3 h-3 mx-auto" strokeWidth={2} /> : size}
-              </button>
-            ))}
-          </div>
+        <div className="pc-sizes" aria-label={`Choose a size for ${product.name}`}>
+          {product.sizes.map((size) => (
+            <button
+              key={size}
+              type="button"
+              onClick={(e) => handleSelectSize(size, e)}
+              className={`flex h-[30px] min-w-[30px] items-center justify-center border px-1.5 text-xs transition-colors ${
+                addedSize === size
+                  ? 'border-[#121212] bg-[#121212] text-white'
+                  : 'border-[rgba(72,79,86,0.25)] bg-white text-[#121212] hover:border-[#484f56]'
+              }`}
+              aria-label={`Add size ${size}`}
+            >
+              {addedSize === size ? <Check className="h-3.5 w-3.5" /> : size}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Product Info */}
-      <div className="py-3 px-1 flex flex-col flex-1 justify-between gap-1.5">
-        <div>
-          {/* Unit / Category */}
-          <div className="flex items-center justify-between text-[10px] text-[#A3A39C] mb-0.5">
-            <span className="uppercase tracking-[0.1em] line-clamp-1">{product.unit || product.category}</span>
-            <div className="flex items-center gap-0.5 text-[#C4B08C] font-medium">
-              <Star className="w-[10px] h-[10px] fill-current" />
-              <span>{product.rating}</span>
+      <div className="flex flex-1 flex-col">
+        <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.1em] text-[#484f56]">
+          {product.unit || product.category}
+        </p>
+        <h3 className="mb-1 text-[15px] font-medium uppercase leading-[1.5] text-[#121212]">
+          {product.name}
+        </h3>
+        <p className="mb-1 text-[15px] font-normal tracking-[0.02em] text-[#cf2929]">
+          <span className="sr-only">Sale price</span>
+          ₹{product.price}
+          {product.originalPrice > product.price && (
+            <del className="ml-2.5 opacity-40">
+              <span className="sr-only">Original price</span>
+              ₹{product.originalPrice}
+            </del>
+          )}
+        </p>
+        <div
+          className="bc-stars mt-1.5"
+          style={{ ['--star-percent' as string]: `${starPercent}%` }}
+          role="img"
+          aria-label={`${product.rating} out of 5 stars`}
+        />
+
+        {product.colors.length > 0 && (
+          <div className="relative mt-2.5 h-[18px] overflow-hidden">
+            <p className="pc-swatch-label absolute inset-0 text-[13px] leading-[18px] text-[#484f56]/80">
+              {selectedColor}
+            </p>
+            <div className="pc-swatches absolute inset-x-0 top-0 flex">
+              {product.colors.slice(0, 5).map((color) => (
+                <button
+                  key={color.name}
+                  type="button"
+                  title={color.name}
+                  aria-label={color.name}
+                  aria-pressed={selectedColor === color.name}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedColor(color.name);
+                  }}
+                  className={`relative m-0 h-[18px] w-[18px] rounded-full p-[3px] ${
+                    selectedColor === color.name ? 'shadow-[inset_0_0_0_1px_#121212]' : ''
+                  }`}
+                >
+                  <span
+                    className="absolute inset-[3px] rounded-full"
+                    style={{
+                      backgroundColor: color.hex,
+                      boxShadow: color.hex.toLowerCase() === '#ffffff' ? 'inset 0 0 0 1px #e2e2e2' : undefined,
+                    }}
+                  />
+                </button>
+              ))}
             </div>
           </div>
+        )}
 
-          {/* Name */}
-          <h3 className="text-[12px] sm:text-[13px] font-medium text-[#050505] leading-snug line-clamp-1">
-            {product.name}
-          </h3>
-        </div>
-
-        {/* Color Swatches & Price */}
-        <div className="flex items-center justify-between mt-auto pt-1.5 border-t border-[#E8E8E3]">
-          {/* Colors */}
-          <div className="flex items-center gap-1">
-            {product.colors.slice(0, 4).map((c) => (
-              <button
-                key={c.name}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedColor(c.name);
-                }}
-                title={c.name}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  selectedColor === c.name
-                    ? 'ring-1 ring-[#050505] ring-offset-1 scale-110'
-                    : 'hover:scale-110'
-                }`}
-                style={{
-                  backgroundColor: c.hex,
-                  border: c.hex.toLowerCase() === '#ffffff' ? '1px solid #E8E8E3' : '1px solid transparent',
-                }}
-              />
-            ))}
-            {product.colors.length > 4 && (
-              <span className="text-[9px] text-[#A3A39C] font-medium ml-0.5">+{product.colors.length - 4}</span>
-            )}
-          </div>
-
-          {/* Price */}
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-heading font-bold text-[13px] sm:text-[14px] text-[#050505]">
-              ₹{product.price}
-            </span>
-            <span className="text-[10px] text-[#A3A39C] line-through">
-              ₹{product.originalPrice}
-            </span>
-          </div>
+        <div className="mt-3 flex flex-wrap gap-1 md:hidden">
+          {product.sizes.map((size) => (
+            <button
+              key={`m-${size}`}
+              type="button"
+              onClick={(e) => handleSelectSize(size, e)}
+              className={`h-9 min-w-9 border px-2 text-xs ${
+                addedSize === size
+                  ? 'border-[#121212] bg-[#121212] text-white'
+                  : 'border-[#e2e2e2] text-[#121212]'
+              }`}
+              aria-label={`Add size ${size}`}
+            >
+              {addedSize === size ? 'Added' : size}
+            </button>
+          ))}
         </div>
       </div>
-    </div>
+    </article>
   );
 };

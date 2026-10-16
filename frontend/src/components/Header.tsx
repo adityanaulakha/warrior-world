@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, Heart, ShoppingBag, User, Menu, X, ChevronDown, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Search, Heart, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 
 interface HeaderProps {
   cartCount: number;
@@ -43,6 +43,23 @@ const MEGA_CATEGORIES = [
   },
 ];
 
+const NAV = [
+  { label: 'Regiments', category: 'Military' },
+  { label: 'Combos', category: 'Combos' },
+  { label: 'Bottoms', category: 'Bottoms' },
+  { label: 'New', category: 'New Arrivals' },
+  { label: 'Shark Tank', category: 'Shark Tank Special' },
+];
+
+const MOBILE_LINKS = [
+  { label: 'Shop all', cat: 'Shop All' },
+  { label: 'Pick any 3 @ ₹999', cat: 'Combos' },
+  { label: 'Regiments', cat: 'Military' },
+  { label: 'Tactical bottoms', cat: 'Bottoms' },
+  { label: 'New arrivals', cat: 'New Arrivals' },
+  { label: 'Shark Tank collection', cat: 'Shark Tank Special' },
+];
+
 export const Header: React.FC<HeaderProps> = ({
   cartCount,
   wishlistCount,
@@ -51,18 +68,27 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSearch,
   onSelectCategory,
 }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [activeMega, setActiveMega] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 25);
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileOpen(false);
+        setActiveMega(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   const handleMegaEnter = () => {
@@ -71,341 +97,200 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const handleMegaLeave = () => {
-    closeTimeout.current = setTimeout(() => setActiveMega(false), 120);
+    closeTimeout.current = setTimeout(() => setActiveMega(false), 140);
   };
 
+  const iconBtn = 'relative inline-flex h-11 w-11 items-center justify-center text-[#121212] transition-opacity hover:opacity-60';
+
   return (
-    <>
-      <header
-        className={`sticky top-0 z-40 w-full transition-all duration-300 ${
-          isScrolled
-            ? 'bg-white/95 backdrop-blur-md border-b border-neutral-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)]'
-            : 'bg-[#FAFAF8] border-b border-neutral-200/60'
-        }`}
-      >
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-            className={`grid grid-cols-2 lg:grid-cols-[240px_1fr_240px] items-center transition-all duration-300 ${
-              isScrolled ? 'h-16' : 'h-20'
-            }`}
+    <header className="sticky top-0 z-40 w-full border-b border-[#E2E2E2] bg-white">
+      <div className="mx-auto grid min-h-[60px] w-full max-w-[1440px] grid-cols-[auto_1fr_auto] items-center px-[15px] lg:min-h-[80px] lg:grid-cols-[1fr_auto_1fr] lg:px-[40px]">
+        <div className="flex min-w-0 items-center justify-start">
+          <button
+            type="button"
+            className="inline-flex h-11 w-11 items-center justify-center text-[#121212] lg:hidden"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
           >
-            {/* Left Column: Mobile Menu Toggle + Brand Logo */}
-            <div className="flex items-center justify-start gap-3 sm:gap-4">
+            <Menu className="h-5 w-5" strokeWidth={1.5} />
+          </button>
+
+          <nav className="hidden min-w-0 items-center lg:flex" aria-label="Primary">
+            <div
+              className="relative flex h-full items-center"
+              onMouseEnter={handleMegaEnter}
+              onMouseLeave={handleMegaLeave}
+            >
               <button
-                className="lg:hidden flex items-center justify-center w-10 h-10 -ml-2 text-neutral-900 hover:text-neutral-600 transition-colors"
-                onClick={() => setMobileOpen(true)}
-                aria-label="Open mobile menu"
+                type="button"
+                className="bc-nav-link"
+                aria-expanded={activeMega}
+                onClick={() => setActiveMega((open) => !open)}
               >
-                <Menu className="w-5 h-5" strokeWidth={1.5} />
-              </button>
-
-              <a
-                href="/"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className="group flex items-center transition-transform duration-300 hover:scale-[1.01]"
-              >
-                {!logoError ? (
-                  <img
-                    src="/warrior-world-logo.png"
-                    alt="Warrior World Clothing"
-                    className={`w-auto object-contain transition-all duration-300 ${
-                      isScrolled ? 'h-7 sm:h-8' : 'h-8 sm:h-9'
-                    }`}
-                    onError={() => setLogoError(true)}
-                  />
-                ) : (
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-heading font-black text-xl sm:text-2xl text-neutral-950 tracking-wider">
-                      WARRIORWORLD
-                    </span>
-                    <span className="w-2 h-2 bg-[#C5A059]" />
-                  </div>
-                )}
-              </a>
-            </div>
-
-            {/* Middle Column: Perfectly Centered Navigation Headings */}
-            <nav className="hidden lg:flex items-center justify-center gap-6 xl:gap-8 h-full">
-              {/* Shop All Flyout */}
-              <div
-                className="relative h-full flex items-center"
-                onMouseEnter={handleMegaEnter}
-                onMouseLeave={handleMegaLeave}
-              >
-                <button
-                  className={`inline-flex items-center gap-1.5 text-[12px] xl:text-[13px] font-bold uppercase tracking-[0.08em] transition-colors py-1 ${
-                    activeMega
-                      ? 'text-neutral-950'
-                      : 'text-neutral-700 hover:text-neutral-950'
-                  }`}
-                >
-                  <span>Shop All</span>
-                  <ChevronDown
-                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      activeMega ? 'rotate-180 text-neutral-950' : 'text-neutral-400'
-                    }`}
-                    strokeWidth={1.75}
-                  />
-                </button>
-              </div>
-
-              <button
-                onClick={() => onSelectCategory('Military')}
-                className="inline-flex items-center text-[12px] xl:text-[13px] font-bold uppercase tracking-[0.08em] text-neutral-700 hover:text-neutral-950 transition-colors py-1"
-              >
-                Regiments
-              </button>
-
-              <button
-                onClick={() => onSelectCategory('Combos')}
-                className="inline-flex items-center text-[12px] xl:text-[13px] font-bold uppercase tracking-[0.08em] text-neutral-700 hover:text-neutral-950 transition-colors py-1"
-              >
-                Combos
-              </button>
-
-              <button
-                onClick={() => onSelectCategory('Bottoms')}
-                className="inline-flex items-center text-[12px] xl:text-[13px] font-bold uppercase tracking-[0.08em] text-neutral-700 hover:text-neutral-950 transition-colors py-1"
-              >
-                Tactical Bottoms
-              </button>
-
-              <button
-                onClick={() => onSelectCategory('New Arrivals')}
-                className="inline-flex items-center text-[12px] xl:text-[13px] font-bold uppercase tracking-[0.08em] text-neutral-700 hover:text-neutral-950 transition-colors py-1"
-              >
-                New Drops
-              </button>
-
-              <button
-                onClick={() => onSelectCategory('Shark Tank Special')}
-                className="inline-flex items-center text-[12px] xl:text-[13px] font-bold uppercase tracking-[0.08em] text-neutral-900 hover:text-[#8B6B23] transition-colors py-1"
-              >
-                Shark Tank S5
-              </button>
-            </nav>
-
-            {/* Right Column: Clean Utilities (Search, Wishlist, Bag) */}
-            <div className="flex items-center justify-end gap-2 sm:gap-3">
-              {/* Minimal Search Button */}
-              <button
-                onClick={onOpenSearch}
-                className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 border border-neutral-200 bg-white hover:border-neutral-400 text-neutral-500 hover:text-neutral-900 text-xs font-mono transition-colors group"
-                aria-label="Search store"
-              >
-                <Search className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-950 transition-colors" />
-                <span className="hidden md:inline text-[11px] uppercase tracking-wider text-neutral-400">Search</span>
-                <kbd className="hidden lg:inline text-[9px] bg-neutral-100 text-neutral-500 px-1 py-0.5 border border-neutral-200">
-                  ⌘K
-                </kbd>
-              </button>
-
-              {/* Mobile Search Icon */}
-              <button
-                onClick={onOpenSearch}
-                className="sm:hidden flex items-center justify-center w-9 h-9 text-neutral-800 hover:text-neutral-950 transition-colors"
-                aria-label="Search"
-              >
-                <Search className="w-4 h-4" strokeWidth={1.5} />
-              </button>
-
-              {/* Wishlist */}
-              <button
-                onClick={onOpenWishlist}
-                className="relative flex items-center justify-center w-9 h-9 text-neutral-800 hover:text-neutral-950 transition-colors"
-                aria-label={`Wishlist (${wishlistCount})`}
-              >
-                <Heart className="w-4 h-4" strokeWidth={1.75} />
-                {wishlistCount > 0 && (
-                  <span className="absolute top-1 right-0.5 min-w-[15px] h-[15px] px-0.5 bg-neutral-950 text-white text-[9px] font-mono font-bold flex items-center justify-center leading-none">
-                    {wishlistCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Cart Drawer Trigger */}
-              <button
-                onClick={onOpenCart}
-                className="relative flex items-center gap-2 pl-2.5 pr-3 py-1.5 bg-neutral-950 hover:bg-neutral-800 text-white transition-colors"
-                aria-label={`Bag (${cartCount})`}
-              >
-                <ShoppingBag className="w-3.5 h-3.5 text-[#C5A059]" strokeWidth={2} />
-                <span className="text-xs font-bold font-mono tracking-wider">
-                  {cartCount}
-                </span>
+                Shop
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${activeMega ? 'rotate-180' : ''}`} />
               </button>
             </div>
-          </div>
+            {NAV.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                className="bc-nav-link"
+                onClick={() => onSelectCategory(item.category)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
         </div>
 
-        {/* Minimalist Editorial Mega Menu */}
-        {activeMega && (
-          <div
-            className="absolute top-full left-0 right-0 bg-white border-t border-neutral-200 shadow-xl z-50 animate-in fade-in slide-in-from-top-1 duration-150"
-            onMouseEnter={handleMegaEnter}
-            onMouseLeave={handleMegaLeave}
+        <a
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className="justify-self-center"
+          aria-label="Warrior World home"
+        >
+          {!logoError ? (
+            <img
+              src="/warrior-world-logo.png"
+              alt="Warrior World"
+              className="h-8 w-auto max-w-[148px] object-contain sm:h-9 sm:max-w-[180px]"
+              onError={() => setLogoError(true)}
+            />
+          ) : (
+            <span className="text-lg font-semibold uppercase tracking-[0.08em] text-[#121212]">Warrior World</span>
+          )}
+        </a>
+
+        <div className="flex items-center justify-end">
+          <button type="button" onClick={onOpenSearch} className={iconBtn} aria-label="Search">
+            <Search className="h-[18px] w-[18px]" strokeWidth={1.6} />
+          </button>
+          <button
+            type="button"
+            onClick={onOpenWishlist}
+            className={`${iconBtn} hidden sm:inline-flex`}
+            aria-label={`Wishlist, ${wishlistCount} items`}
           >
-            <div className="max-w-[1440px] mx-auto px-6 lg:px-8 py-8">
-              <div className="grid grid-cols-12 gap-8">
-                {/* 3 Nav Columns (8 cols) */}
-                <div className="col-span-8 grid grid-cols-3 gap-6 border-r border-neutral-100 pr-6">
-                  {MEGA_CATEGORIES.map((cat) => (
-                    <div key={cat.heading}>
-                      <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#C5A059] mb-3 pb-1 border-b border-neutral-100">
-                        {cat.heading}
-                      </p>
-                      <ul className="space-y-2">
-                        {cat.links.map((link) => (
-                          <li key={link.name}>
-                            <button
-                              onClick={() => {
-                                setActiveMega(false);
-                                onSelectCategory(link.name);
-                              }}
-                              className="group flex items-baseline justify-between w-full text-left py-1 text-xs text-neutral-600 hover:text-neutral-950 transition-colors"
-                            >
-                              <span className="group-hover:translate-x-0.5 transition-transform font-medium">
-                                {link.name}
-                              </span>
-                              <span className="text-[9px] font-mono text-neutral-400 group-hover:text-[#C5A059] transition-colors">
-                                {link.tag}
-                              </span>
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
+            <Heart className="h-[18px] w-[18px]" strokeWidth={1.6} />
+            {wishlistCount > 0 && (
+              <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#121212] px-1 text-[9px] font-semibold text-white">
+                {wishlistCount}
+              </span>
+            )}
+          </button>
+          <button type="button" onClick={onOpenCart} className={iconBtn} aria-label={`Bag, ${cartCount} items`}>
+            <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.6} />
+            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#121212] px-1 text-[9px] font-semibold text-white">
+              {cartCount}
+            </span>
+          </button>
+        </div>
+      </div>
 
-                {/* Right Promo Card (4 cols) */}
-                <div className="col-span-4 flex flex-col justify-between bg-neutral-50 p-5 border border-neutral-200/70">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[9px] font-mono font-bold uppercase tracking-widest bg-neutral-950 text-white px-2 py-0.5">
-                        Shark Tank S5 Exclusive
-                      </span>
-                      <span className="text-[10px] font-mono text-[#8B6B23] font-bold">
-                        Pick Any 3 @ ₹999
-                      </span>
-                    </div>
-                    <h4 className="font-heading font-black text-sm text-neutral-950 tracking-tight leading-snug">
-                      Signature 180 GSM Combed Cotton Drop
-                    </h4>
-                    <p className="text-neutral-600 text-[11px] mt-1 leading-relaxed">
-                      Mix and match tactical army graphics, pure bio-washed comfort, and 50+ wash durability.
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-neutral-200 flex items-center justify-between">
-                    <button
-                      onClick={() => {
-                        setActiveMega(false);
-                        onSelectCategory('Combos');
-                      }}
-                      className="text-xs font-bold uppercase tracking-wider text-neutral-950 hover:text-[#C5A059] flex items-center gap-1.5 transition-colors"
-                    >
-                      <span>Build Your Combo</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="text-[10px] font-mono text-neutral-400">Free COD Pan-India</span>
-                  </div>
+      {activeMega && (
+        <div
+          className="absolute left-0 right-0 top-full z-50 hidden border-t border-[#E2E2E2] bg-white shadow-[0_18px_40px_rgba(0,0,0,0.06)] lg:block"
+          onMouseEnter={handleMegaEnter}
+          onMouseLeave={handleMegaLeave}
+        >
+          <div className="mx-auto grid max-w-[1440px] grid-cols-12 gap-8 px-[40px] py-8">
+            <div className="col-span-8 grid grid-cols-3 gap-8">
+              {MEGA_CATEGORIES.map((cat) => (
+                <div key={cat.heading}>
+                  <p className="mb-3 text-[13px] font-semibold uppercase tracking-[0.08em] text-[#121212]">
+                    {cat.heading}
+                  </p>
+                  <ul className="space-y-1">
+                    {cat.links.map((link) => (
+                      <li key={link.name}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveMega(false);
+                            onSelectCategory(link.name);
+                          }}
+                          className="flex w-full items-baseline justify-between py-1 text-left text-[15px] text-[#484f56] transition-colors hover:text-[#121212]"
+                        >
+                          <span>{link.name}</span>
+                          <span className="text-[11px] uppercase tracking-[0.08em] text-[#484f56]/70">{link.tag}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
+              ))}
             </div>
-          </div>
-        )}
-      </header>
-
-      {/* Mobile Drawer */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="fixed inset-0 bg-neutral-950/70 backdrop-blur-xs transition-opacity"
-            onClick={() => setMobileOpen(false)}
-          />
-
-          <div className="fixed inset-y-0 left-0 w-full max-w-xs bg-white text-neutral-950 shadow-2xl flex flex-col justify-between overflow-y-auto">
-            {/* Drawer Header */}
-            <div>
-              <div className="flex items-center justify-between p-5 border-b border-neutral-200">
-                <img
-                  src="/warrior-world-logo.png"
-                  alt="Warrior World"
-                  className="h-7 w-auto object-contain"
-                  onError={() => setLogoError(true)}
-                />
-                <button
-                  onClick={() => setMobileOpen(false)}
-                  className="w-8 h-8 flex items-center justify-center text-neutral-600 hover:text-neutral-950"
-                  aria-label="Close menu"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+            <div className="col-span-4 flex flex-col justify-between bg-[#f7f7f7] p-6">
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#cf2929]">
+                  Shark Tank S5
+                </p>
+                <h3 className="text-2xl font-semibold leading-tight text-[#121212]">Pick any 3 @ ₹999</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-[#484f56]">
+                  Mix tactical prints, colours, and sizes in 180 GSM bio-washed combed cotton.
+                </p>
               </div>
-
-              {/* Shark Tank Mobile Callout */}
-              <div className="p-4 bg-neutral-900 text-white flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <img
-                    src="/shark-tank-india-logo.png"
-                    alt="Shark Tank India"
-                    className="h-3.5 w-auto brightness-200"
-                  />
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#C5A059] font-bold">
-                    Season 5 Deal Winner
-                  </span>
-                </div>
-                <button
-                  onClick={() => {
-                    setMobileOpen(false);
-                    onSelectCategory('Shark Tank Special');
-                  }}
-                  className="text-[10px] font-bold uppercase tracking-wider text-white underline underline-offset-2"
-                >
-                  Shop
-                </button>
-              </div>
-
-              {/* Links List */}
-              <div className="p-4 space-y-1">
-                {[
-                  { label: 'Shop All Products', cat: 'Shop All' },
-                  { label: 'Pick Any 3 @ ₹999 Combos', cat: 'Combos' },
-                  { label: 'Regimental Units (Army, IAF, Navy)', cat: 'Military' },
-                  { label: 'Tactical Cargo Pants & Bottoms', cat: 'Bottoms' },
-                  { label: 'New Arrivals / Fresh Deployments', cat: 'New Arrivals' },
-                  { label: 'Shark Tank Pitch Collection', cat: 'Shark Tank Special' },
-                ].map((item) => (
-                  <button
-                    key={item.label}
-                    onClick={() => {
-                      setMobileOpen(false);
-                      onSelectCategory(item.cat);
-                    }}
-                    className="w-full text-left py-3 px-3 text-xs font-bold uppercase tracking-wider text-neutral-800 hover:bg-neutral-100 hover:text-neutral-950 transition-colors border-b border-neutral-100 flex items-center justify-between"
-                  >
-                    <span>{item.label}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-neutral-400" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Drawer Footer */}
-            <div className="p-5 border-t border-neutral-200 bg-neutral-50 text-xs text-neutral-600 space-y-2">
-              <div className="flex items-center gap-2 text-neutral-900 font-bold uppercase tracking-wider text-[11px]">
-                <ShieldCheck className="w-4 h-4 text-[#C5A059]" />
-                <span>50+ Wash Tested Pure Cotton</span>
-              </div>
-              <p className="text-[10px] text-neutral-500">Free Cash on Delivery across 19,000+ Indian Pincodes</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMega(false);
+                  onSelectCategory('Combos');
+                }}
+                className="bc-text-link mt-6 self-start"
+              >
+                Build your combo
+              </button>
             </div>
           </div>
         </div>
       )}
-    </>
+
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/40"
+            aria-label="Close menu"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="absolute inset-y-0 left-0 flex w-[min(100%,360px)] flex-col bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#E2E2E2] px-4 py-3">
+              <img src="/warrior-world-logo.png" alt="" className="h-7 w-auto object-contain" />
+              <button type="button" onClick={() => setMobileOpen(false)} className="inline-flex h-11 w-11 items-center justify-center" aria-label="Close menu">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto px-2 py-2" aria-label="Mobile">
+              {MOBILE_LINKS.map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    onSelectCategory(item.cat);
+                  }}
+                  className="flex w-full items-center justify-between border-b border-[#E2E2E2] px-3 py-4 text-left text-[17px] font-medium text-[#121212]"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+            <div className="flex gap-2 border-t border-[#E2E2E2] p-4">
+              <button type="button" className="bc-btn-line bc-btn flex-1" onClick={() => { setMobileOpen(false); onOpenSearch(); }}>
+                Search
+              </button>
+              <button type="button" className="bc-btn flex-1" onClick={() => { setMobileOpen(false); onOpenWishlist(); }}>
+                Wishlist ({wishlistCount})
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
   );
 };
