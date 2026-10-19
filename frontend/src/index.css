@@ -464,7 +464,13 @@
   height: 100%;
   width: 100%;
   object-fit: contain;
-  object-position: center;
+  object-position: 50% 50%;
+}
+@media (max-width: 767px) {
+  .hero-bleed-art {
+    object-fit: cover;
+    object-position: center 22%;
+  }
 }
 .bc-frame {
   display: block;

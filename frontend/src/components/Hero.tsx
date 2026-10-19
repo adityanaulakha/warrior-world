@@ -220,68 +220,74 @@ export const Hero: React.FC<HeroProps> = ({ onShopNewArrivals, onShopCombos }) =
         </p>
       </div>
 
-      <div
-        className="relative aspect-[4/5] w-full overflow-hidden md:hidden"
-        onTouchStart={(e) => {
-          const point = e.changedTouches[0];
-          swipeStart.current = { x: point.clientX, y: point.clientY };
-        }}
-        onTouchEnd={(e) => {
-          const point = e.changedTouches[0];
-          const dx = point.clientX - swipeStart.current.x;
-          const dy = point.clientY - swipeStart.current.y;
-          if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-            if (dx < 0) nextMobile();
-            else prevMobile();
-            blockClickUntil.current = Date.now() + 350;
-          }
-        }}
-        onClickCapture={(event) => {
-          if (Date.now() < blockClickUntil.current) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-        }}
-      >
-        {MOBILE_BANNERS.map((banner, index) => {
-          const isActive = index === mobileIndex;
-          return (
-            <button
-              key={banner.id}
-              type="button"
-              className={`hero-slide absolute inset-0 h-full w-full ${isActive ? 'is-active' : ''}`}
-              onClick={() => openBanner(banner)}
-              aria-label={banner.title}
-              tabIndex={isActive ? 0 : -1}
-            >
-              <img
-                src={banner.image}
-                alt=""
-                className="h-full w-full object-cover object-center"
-                loading={index === 0 ? 'eager' : 'lazy'}
-                fetchPriority={index === 0 ? 'high' : 'auto'}
-              />
-            </button>
-          );
-        })}
-
-        <div className="absolute bottom-4 left-0 z-20 flex w-full justify-center">
-          <div className="flex items-center justify-center gap-2.5">
-            {MOBILE_BANNERS.map((banner, index) => (
+      <div className="bg-black md:hidden">
+        <div className="px-4 pb-3 pt-4">
+          <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/70">Campaign</p>
+          <h2 className="bc-display mt-1 text-[2.6rem] text-white">{mobileActive.title}</h2>
+        </div>
+        <div
+          className="relative aspect-[4/5] w-full overflow-hidden"
+          onTouchStart={(e) => {
+            const point = e.changedTouches[0];
+            swipeStart.current = { x: point.clientX, y: point.clientY };
+          }}
+          onTouchEnd={(e) => {
+            const point = e.changedTouches[0];
+            const dx = point.clientX - swipeStart.current.x;
+            const dy = point.clientY - swipeStart.current.y;
+            if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+              if (dx < 0) nextMobile();
+              else prevMobile();
+              blockClickUntil.current = Date.now() + 350;
+            }
+          }}
+          onClickCapture={(event) => {
+            if (Date.now() < blockClickUntil.current) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }}
+        >
+          {MOBILE_BANNERS.map((banner, index) => {
+            const isActive = index === mobileIndex;
+            return (
               <button
                 key={banner.id}
                 type="button"
-                onClick={() => setMobileIndex(index)}
-                className={dotClass(index === mobileIndex)}
-                aria-label={`Show ${banner.title}`}
-                aria-current={index === mobileIndex}
-              />
-            ))}
+                className={`hero-slide absolute inset-0 h-full w-full ${isActive ? 'is-active' : ''}`}
+                onClick={() => openBanner(banner)}
+                aria-label={banner.title}
+                tabIndex={isActive ? 0 : -1}
+              >
+                <img
+                  src={banner.image}
+                  alt=""
+                  className="hero-bleed-art"
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={index === 0 ? 'high' : 'auto'}
+                />
+              </button>
+            );
+          })}
+
+          <div className="absolute bottom-4 left-0 z-20 flex w-full justify-center">
+            <div className="flex items-center justify-center gap-2.5">
+              {MOBILE_BANNERS.map((banner, index) => (
+                <button
+                  key={banner.id}
+                  type="button"
+                  onClick={() => setMobileIndex(index)}
+                  className={dotClass(index === mobileIndex)}
+                  aria-label={`Show ${banner.title}`}
+                  aria-current={index === mobileIndex}
+                />
+              ))}
+            </div>
           </div>
+          <p className="sr-only" aria-live="polite">
+            {mobileActive.title}
+          </p>
         </div>
-        <p className="sr-only" aria-live="polite">
-          {mobileActive.title}
-        </p>
       </div>
     </section>
   );
